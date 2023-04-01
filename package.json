@@ -1,0 +1,25 @@
+{
+  "name": "bot_telega",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.ts",
+  "scripts": {
+    "dev": "nodemon --exec ts-node src/index.ts"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "dotenv": "^16.0.3",
+    "pg": "^8.10.0",
+    "telegraf": "^4.12.2"
+  },
+  "devDependencies": {
+    "@types/node": "^18.15.11",
+    "@types/pg": "^8.6.6",
+    "db-migrate": "^0.11.13",
+    "db-migrate-pg": "^1.2.2",
+    "ts-loader": "^9.4.2",
+    "ts-node": "^10.9.1",
+    "typescript": "^5.0.3"
+  }
+}

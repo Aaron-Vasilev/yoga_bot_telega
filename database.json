@@ -1,0 +1,11 @@
+{
+  "dev": {
+    "driver": "pg",
+    "host": "localhost",
+    "database": "db_yoga",
+    "port": "5432",
+    "schema": "yoga",
+    "user": "postgres"
+  },
+  "sql-file": true
+}
