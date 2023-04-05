@@ -9,5 +9,9 @@ export interface Lesson {
   date: string
   time: string
   description: string
-  registered: number[]
+}
+
+export interface LessonWithUsers extends Lesson{
+  lessonId: number
+  registered: User[]
 }

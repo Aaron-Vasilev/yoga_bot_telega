@@ -15,8 +15,13 @@ export function connectHears(bot: Telegraf, db: Client) {
   bot.hears(TIMETABLE, async ctx => {
     const result = await db.query('SELECT * FROM yoga.available_lessons;')
     const timetable = generateTimetable(result.rows)
+    let header = 'Choose a day:'
 
-    ctx.reply('Choose a day:', {
+    if (timetable.reply_markup.inline_keyboard.length === 0) {
+      header = 'The timetable is not ready yet'
+    }
+
+    ctx.reply(header, {
       ...timetable
     })
   })

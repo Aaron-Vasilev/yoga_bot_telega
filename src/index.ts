@@ -6,6 +6,7 @@ import { connectCommands } from './events/commands'
 import { connectActions } from './events/actions'
 import { connectHears } from './events/hears'
 import { connectOns } from './events/ons'
+import { start } from './events/start'
 
 dotenv.config()
 pg.types.setTypeParser(1082, (val) => val)
@@ -16,14 +17,8 @@ const db = new Client({
 db.connect()
 
 const bot = new Telegraf(String(process.env.TOKEN))
-bot.start(ctx => {
-  const buttons = Markup.keyboard([
-    [TIMETABLE, CONTACT]
-  ]).resize()
 
-  ctx.reply('Hey Bitch', { ...buttons })
-})
-
+start(bot, db)
 connectActions(bot, db)
 connectCommands(bot, db)
 connectHears(bot, db)
@@ -31,4 +26,3 @@ connectOns(bot, db)
 
 bot.launch()
 console.log('Launch!')
-
