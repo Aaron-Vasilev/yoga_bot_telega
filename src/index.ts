@@ -26,10 +26,12 @@ connectCommands(bot, db)
 connectHears(bot, db)
 connectOns(bot, db)
 
+const PORT = +process.env.PORT
+
 bot.launch(process.env.NODE_ENV === 'prod' && {
   webhook: {
     domain: process.env.DOMAIN,
-    port: +process.env.PORT
+    port: PORT
   }
 })
 console.log('Launch!')
