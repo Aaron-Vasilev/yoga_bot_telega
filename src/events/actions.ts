@@ -30,14 +30,14 @@ export function connectActions(bot: Telegraf, db: Client) {
           await db.query(`UPDATE yoga.registered_users 
                           SET registered = array_append(registered, $1)
                           WHERE lesson_id=$2;`, [ctx.from.id, lessonId])
-          message = 'See you in the session!'
+          message = 'See you in the session✨'
           break;
 
         case UNREGISTER:
           await db.query(`UPDATE yoga.registered_users
                           SET registered = array_remove(registered, $1)
                           WHERE lesson_id=$2;`, [ctx.from.id, lessonId])
-          message = 'You are free, fatass...'
+          message = 'You are free, fatass...🌚'
           break;
 
       }
