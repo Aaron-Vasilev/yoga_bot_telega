@@ -11,7 +11,10 @@ dotenv.config()
 pg.types.setTypeParser(1082, (val) => val)
 
 const db = new Client({
-  connectionString: process.env.DATABASE_URL
+  connectionString: process.env.DATABASE_URL,
+  ssl: {
+    rejectUnauthorized: false
+  }
 })
 db.connect()
 
