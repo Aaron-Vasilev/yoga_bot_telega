@@ -1,7 +1,6 @@
 import dotenv from 'dotenv'
 import pg, { Client } from 'pg'
-import { Telegraf, Markup } from 'telegraf'
-import { TIMETABLE, CONTACT } from './utils/const'
+import { Telegraf } from 'telegraf'
 import { connectCommands } from './events/commands'
 import { connectActions } from './events/actions'
 import { connectHears } from './events/hears'
@@ -13,7 +12,7 @@ pg.types.setTypeParser(1082, (val) => val)
 
 const db = new Client({
   connectionString: process.env.DATABASE_URL,
-  ssl: {
+  ssl: process.env.NODE_ENV === 'prod' && {
     rejectUnauthorized: false
   }
 })
@@ -27,5 +26,10 @@ connectCommands(bot, db)
 connectHears(bot, db)
 connectOns(bot, db)
 
-bot.launch()
+bot.launch(process.env.NODE_ENV === 'prod' && {
+  webhook: {
+    domain: process.env.DOMAIN,
+    port: +process.env.PORT
+  }
+})
 console.log('Launch!')
