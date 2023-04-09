@@ -48,6 +48,7 @@ export function generateLessonText(lesson: LessonWithUsers): string {
   let text = `${weekdayFromString(lesson.date)} 🚀 ${beautyDate(lesson.date)} 🚀 ${beautyTime(lesson.time)} 🕒`
            + `\nBooked: <b>${lesson.registered.length}</b>/5`
            + yogsEmoji(lesson.registered.length) + '\n'
+           + lesson.description + '\n'
 
   if (lesson.registered.length > 0) {
     lesson.registered.forEach((user, i) => {
