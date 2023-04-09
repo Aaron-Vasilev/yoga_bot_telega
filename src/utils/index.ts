@@ -45,10 +45,10 @@ export function generateTimetable(lessons: Lesson[]): Markup.Markup<InlineKeyboa
 }
 
 export function generateLessonText(lesson: LessonWithUsers): string {
-  let text = `${weekdayFromString(lesson.date)} 🚀 ${beautyDate(lesson.date)} 🚀 ${beautyTime(lesson.time)} 🕒`
-           + `\nBooked: <b>${lesson.registered.length}</b>/5`
-           + yogsEmoji(lesson.registered.length) + '\n'
+  let text = `${weekdayFromString(lesson.date)} 🚀 ${beautyDate(lesson.date)} 🚀 ${beautyTime(lesson.time)} 🕒\n`
            + lesson.description + '\n'
+           + `\nBooked: <b>${lesson.registered.length}</b>/5`
+           + yogsEmoji(lesson.registered.length)
 
   if (lesson.registered.length > 0) {
     lesson.registered.forEach((user, i) => {
