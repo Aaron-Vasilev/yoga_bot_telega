@@ -127,7 +127,9 @@ function yogsEmoji(n: number): string {
   let res = ''
 
   for (let i = 0; i < n; i++) {
-    res += YOGS[i]
+    let index = i % YOGS.length
+
+    res += YOGS[index]
   }
 
   return res
