@@ -3,3 +3,5 @@ migrations
 .env
 dist
 *.sql
+*.pem
+latest.dump
