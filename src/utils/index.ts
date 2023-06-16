@@ -10,24 +10,17 @@ export function isAdmin(userId: number): boolean {
 export function lessonIsValid(strings: string[]): boolean {
   let isValid = true
 
-  if (strings.length !== 3)
+  if (strings.length < 3)
     isValid = false
   else if (!dateIsValid(strings[0]))
     isValid = false
   else if (!timeIsValid(strings[1]))
     isValid = false
+  else if (strings[3] !== undefined && isNaN(+strings[3])) {
+    isValid = false
+  }
 
   return isValid
-}
-
-export function timetableText(users: User[]): string {
-  let res = `People registered <b>${users.length}/5</b>\n`
-
-  users.forEach((user, i) => {
-    res += `${i + 1}. ${user.name} \n`
-  })
-
-  return res
 }
 
 export function generateTimetable(lessons: Lesson[]): Markup.Markup<InlineKeyboardMarkup> {
@@ -47,7 +40,7 @@ export function generateTimetable(lessons: Lesson[]): Markup.Markup<InlineKeyboa
 export function generateLessonText(lesson: LessonWithUsers): string {
   let text = `${weekdayFromString(lesson.date)} 🚀 ${beautyDate(lesson.date)} 🚀 ${beautyTime(lesson.time)} 🕒\n`
            + lesson.description + '\n'
-           + `\nBooked: <b>${lesson.registered.length}</b>/5`
+           + `\nBooked: <b>${lesson.registered.length}</b>/${lesson.max}`
            + yogsEmoji(lesson.registered.length)
 
   if (lesson.registered.length > 0) {

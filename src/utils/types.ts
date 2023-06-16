@@ -9,6 +9,7 @@ export interface Lesson {
   date: string
   time: string
   description: string
+  max: number
 }
 
 export interface LessonWithUsers extends Lesson{
