@@ -8,7 +8,8 @@ export function connectHears(bot: Telegraf, db: Client) {
   bot.hears(CONTACT, ctx => {
     ctx.replyWithHTML(`
       Address: <b>Haifa, Herzlia 16</b>
-      \nTelephone <b>0534257328</b>
+      \nTelephone: <b>0534257328</b>
+      \nQuestions: @vialettochka
     `)
   })
     
