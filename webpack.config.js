@@ -4,11 +4,11 @@ const nodeExternals = require('webpack-node-externals')
 module.exports = {
   target: 'node',
   mode: 'production',
-  externals: [nodeExternals()], // removes node_modules from your final bundle
-  entry: './src/index.ts', // make sure this matches the main root of your code
+  externals: [nodeExternals()],
+  entry: './src/index.ts',
   output: {
-    path: path.join(__dirname, 'dist'), // this can be any path and directory you want
-    filename: 'app.js',
+    path: path.join(__dirname, 'dist'),
+    filename: 'yogabot.js',
   },
   resolve: {
     extensions: ['.ts', '.js'],
