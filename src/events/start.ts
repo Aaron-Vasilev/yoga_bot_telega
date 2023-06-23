@@ -1,11 +1,10 @@
 import { Client } from 'pg'
 import { Telegraf, Markup } from 'telegraf'
-import { Command } from '../utils/const'
+import { Command, Message } from '../utils/const'
 
 export function start(bot: Telegraf, db: Client) {
 
   bot.start(async ctx => {
-    let header = 'Hello to all my dear yoga students! I hope you are feeling healthy and happy. I look forward to practice together. See you on the mat!🤍'
     const { id, username, first_name } = ctx.from
     const buttons = Markup.keyboard([[Command.timetable, Command.contact]]).resize()
     const result = await db.query('SELECT * FROM yoga.user WHERE id=$1 LIMIT 1;', [id])
@@ -19,6 +18,6 @@ export function start(bot: Telegraf, db: Client) {
         [username, first_name, id])
     }
 
-    ctx.reply(header, { ...buttons })
+    ctx.reply(Message.greeting, { ...buttons })
   })
 }
