@@ -1,33 +1,50 @@
+import fs from 'fs'
+import path from 'path'
 import { Client } from 'pg'
-import { Telegraf, Markup } from 'telegraf'
-import { TIMETABLE, CONTACT } from '../utils/const'
-import { generateTimetable } from '../utils'
+import { Markup, Telegraf } from 'telegraf'
+import { Command, Message, Sticker } from '../utils/const'
+import { isAdmin } from '../utils'
+import { timetableCB } from '../utils/lib'
 
 export function connectHears(bot: Telegraf, db: Client) {
 
-  bot.hears(CONTACT, ctx => {
-    ctx.replyWithHTML(`
-      Address: <b>Haifa, Herzlia 16</b>
-      \nTelephone: <b>0534257328</b>
-      \nQuestions: @vialettochka
-    `)
+  bot.hears(Command.contact, ctx => {
+    ctx.replyWithHTML(Message.contact)
   })
     
-  bot.hears(TIMETABLE, async ctx => {
+  bot.hears(Command.timetable, async ctx => timetableCB(ctx, db))
+
+  bot.hears(Command.notify, async ctx => {
     try {
-      const result = await db.query('SELECT * FROM yoga.available_lessons ORDER BY date ASC;')
-      const timetable = generateTimetable(result.rows)
-      let header = '🗓 Choose a day:'
+      if (isAdmin(ctx.from.id)) {
+        const result = await db.query('SELECT id FROM yoga.user;')
 
-      if (timetable.reply_markup.inline_keyboard.length === 0) {
-        header = 'The timetable is not ready yet'
+        result.rows.forEach(user => {
+          ctx.telegram.sendSticker(user.id, Sticker.pinkSheepMeditating)
+          .then(() => { 
+            ctx.telegram.sendMessage(user.id, Message.timtableUpdated, {
+                reply_markup: {
+                  inline_keyboard: [[
+                    { 
+                      text: Command.timetable,
+                      callback_data: Command.timetable
+                    }
+                  ]]
+                }
+              })
+          })
+          .catch((_e) => { })
+        })
       }
-
-      ctx.reply(header, {
-        ...timetable
-      })
     } catch (e) {
       console.log(e)
     }
+  })
+
+  bot.hears('Timetable', ctx => {
+    const photo = fs.createReadStream(path.join(__dirname, '../../IMG_2643.jpg'))
+    const caption = `Тебе надо почистить историю сообщений как на картинке\nYou need to clear the messages history`
+
+    ctx.replyWithPhoto({ source: photo }, { caption })
   })
 } 

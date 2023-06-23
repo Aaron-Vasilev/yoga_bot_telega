@@ -1,9 +1,12 @@
 import { Client } from 'pg'
 import { generateLessonButton, generateLessonText } from '../utils'
 import { Telegraf, Markup } from 'telegraf'
-import { REGISTER, UNREGISTER } from '../utils/const'
+import { Command, Message, REGISTER, UNREGISTER } from '../utils/const'
+import { timetableCB } from '../utils/lib'
 
 export function connectActions(bot: Telegraf, db: Client) {
+
+  bot.action(Command.timetable, ctx => timetableCB(ctx, db))
 
   bot.action(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}$/, async ctx => {
     if ('data' in ctx.update.callback_query) {
@@ -15,7 +18,7 @@ export function connectActions(bot: Telegraf, db: Client) {
 
       ctx.replyWithHTML(lessonText, button)
     } else {
-      ctx.reply('Oops, Something went wrong!')
+      ctx.reply(Message.error)
     }
   })
 
@@ -30,21 +33,21 @@ export function connectActions(bot: Telegraf, db: Client) {
           await db.query(`UPDATE yoga.registered_users 
                           SET registered = array_append(registered, $1)
                           WHERE lesson_id=$2;`, [ctx.from.id, lessonId])
-          message = 'See you in the session✨'
+          message = Message.register
           break;
 
         case UNREGISTER:
           await db.query(`UPDATE yoga.registered_users
                           SET registered = array_remove(registered, $1)
                           WHERE lesson_id=$2;`, [ctx.from.id, lessonId])
-          message = 'You are free, fatass...🌚'
+          message = Message.unregister
           break;
 
       }
 
       ctx.reply(message)
     } else {
-      ctx.reply('Oops, Something went wrong!')
+      ctx.reply(Message.error)
     }
   })
 }
