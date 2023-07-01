@@ -14,7 +14,7 @@ export function connectHears(bot: Telegraf, db: Client) {
     
   bot.hears(Command.timetable, async ctx => timetableCB(ctx, db))
 
-  bot.hears(Command.notify, async ctx => {
+  bot.hears(Command.newTimetable, async ctx => {
     try {
       if (isAdmin(ctx.from.id)) {
         const result = await db.query('SELECT id FROM yoga.user;')
