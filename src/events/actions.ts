@@ -32,7 +32,7 @@ export function connectActions(bot: Telegraf, db: Client) {
         case REGISTER:
           await db.query(`UPDATE yoga.registered_users 
                           SET registered = array_append(registered, $1)
-                          WHERE lesson_id=$2;`, [ctx.from.id, lessonId])
+                          WHERE lesson_id=$2 AND NOT ($1=ANY(registered));`, [ctx.from.id, lessonId])
           message = Message.register
           break;
 
