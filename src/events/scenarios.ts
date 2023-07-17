@@ -120,6 +120,8 @@ export function connectScenarios(bot: Telegraf, db: Client) {
     },
     async ctx => {
       try {
+        if (ctx.message.text === undefined) return ctx.reply(Message.passiveAggression)
+
         const uuid = ctx.message.text.trim()
 
         if (!validUUID(uuid)) return ctx.reply('It\'s not a token🚔🚨')
