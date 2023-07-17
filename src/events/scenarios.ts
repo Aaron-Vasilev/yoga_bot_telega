@@ -97,13 +97,10 @@ export function connectScenarios(bot: Telegraf, db: Client) {
 
   const changeEmojiScence = new Scenes.WizardScene<any>(InternalCmd.changeEmoji,
     ctx => {
-      if (!isAdmin(ctx.from.id)) return ctx.scene.leave()
-
       ctx.replyWithHTML(Message.sendEmoji)
       return ctx.wizard.next()
     },
     async ctx => {
-      console.log('† line 105 ctx', ctx.message)
       if (ctx.message.text && isSingleEmoji(ctx.message.text)) {
         await db.query(`UPDATE yoga.user SET emoji=$1
                         WHERE id=$2`, [ctx.message.text, ctx.from.id])
