@@ -3,8 +3,10 @@ import { Scenes, Telegraf, session } from 'telegraf'
 import { Command, InternalCmd, Message } from '../utils/const'
 import { generateTimetable, isAdmin, generateUserCredantials, isSingleEmoji, updateMembership, validUUID } from '../utils'
 import { Membership } from 'src/utils/types'
+import { connect } from '../utils/lib'
+import { scheduler } from 'timers/promises'
 
-export function connectScenarios(bot: Telegraf, db: Client) {
+async function scenarios(bot: Telegraf, db: Client) {
 
   const nofityScene = new Scenes.WizardScene<any>(InternalCmd.notificationScenario,
     async ctx => {
@@ -186,3 +188,5 @@ export function connectScenarios(bot: Telegraf, db: Client) {
   //@ts-ignore
   bot.action(Command.activateMembership, async ctx => await ctx.scene.enter(InternalCmd.activateMembership))
 } 
+
+export default connect(scenarios)

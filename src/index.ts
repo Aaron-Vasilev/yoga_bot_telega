@@ -5,7 +5,7 @@ import { connectCommands } from './events/commands'
 import connectActions from './events/actions'
 import connectHears from './events/hears'
 import { connectOns } from './events/ons'
-import { connectScenarios } from './events/scenarios'
+import connectScenarios from './events/scenarios'
 import { start } from './events/start'
 
 dotenv.config()
