@@ -103,7 +103,8 @@ export function connectScenarios(bot: Telegraf, db: Client) {
       return ctx.wizard.next()
     },
     async ctx => {
-      if (isSingleEmoji(ctx.message.text)) {
+      console.log('† line 105 ctx', ctx.message)
+      if (ctx.message.text && isSingleEmoji(ctx.message.text)) {
         await db.query(`UPDATE yoga.user SET emoji=$1
                         WHERE id=$2`, [ctx.message.text, ctx.from.id])
         ctx.reply(`Your new emoji: ${ctx.message.text}`)
