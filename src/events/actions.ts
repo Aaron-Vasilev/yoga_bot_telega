@@ -1,10 +1,10 @@
 import { Client } from 'pg'
 import { generateLessonButton, generateLessonText } from '../utils'
-import { Telegraf, Markup } from 'telegraf'
+import { Telegraf } from 'telegraf'
 import { Command, Message, REGISTER, UNREGISTER } from '../utils/const'
-import { timetableCB } from '../utils/lib'
+import { connect, timetableCB } from '../utils/lib'
 
-export function connectActions(bot: Telegraf, db: Client) {
+async function actions(bot: Telegraf, db: Client) {
 
   bot.action(Command.timetable, ctx => timetableCB(ctx, db))
 
@@ -51,3 +51,5 @@ export function connectActions(bot: Telegraf, db: Client) {
     }
   })
 }
+
+export default connect(actions)

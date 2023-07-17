@@ -5,3 +5,4 @@ dist
 *.sql
 *.pem
 latest.dump
+pg_cmds

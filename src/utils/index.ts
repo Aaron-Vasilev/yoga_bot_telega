@@ -1,7 +1,8 @@
 import { Markup } from "telegraf"
-import { InlineKeyboardMarkup } from "telegraf/typings/core/types/typegram"
-import { User, Lesson, LessonWithUsers } from "./types"
-import { REGISTER, UNREGISTER, WEEKDAYS, YOGS } from "./const"
+import { InlineKeyboardMarkup, ReplyKeyboardMarkup } from "telegraf/typings/core/types/typegram"
+import emojiRegex from "emoji-regex"
+import { User, Lesson, LessonWithUsers, Membership, Token, UserMembership } from "./types"
+import { Command, MembershipType, REGISTER, UNREGISTER, WEEKDAYS } from "./const"
 
 export function isAdmin(userId: number): boolean {
   return process.env.ADMIN.split(',').find(id => +id === userId) ? true : false
@@ -23,13 +24,15 @@ export function lessonIsValid(strings: string[]): boolean {
   return isValid
 }
 
-export function generateTimetable(lessons: Lesson[]): Markup.Markup<InlineKeyboardMarkup> {
+export function generateTimetable(lessons: Lesson[], showId = false ): Markup.Markup<InlineKeyboardMarkup> {
   const timetable = []
 
-  for (let i = 0; i < lessons.length; i++) {
-    const { date, time } = lessons[i]
+  for (const lesson of lessons) {
+    const { date, time } = lesson
     const weekday = weekdayFromString(date)
-    const layout = `${weekday} 🌀 ${beautyDate(date)} 🌀 ${beautyTime(time)}`
+    let layout = `${weekday} 🌀 ${beautyDate(date)} 🌀 ${beautyTime(time)}`
+
+    if (showId) layout += ` ID = ${lesson.id}`
 
     timetable.push([Markup.button.callback(layout, `${date}T${time}`)])
   }
@@ -41,7 +44,7 @@ export function generateLessonText(lesson: LessonWithUsers): string {
   let text = `${weekdayFromString(lesson.date)} 🚀 ${beautyDate(lesson.date)} 🚀 ${beautyTime(lesson.time)} 🕒\n`
            + lesson.description + '\n'
            + `\nBooked: <b>${lesson.registered.length}</b>/${lesson.max}`
-           + yogsEmoji(lesson.registered.length)
+           + yogsEmoji(lesson.registered)
 
   if (lesson.registered.length > 0) {
     lesson.registered.forEach((user, i) => {
@@ -80,11 +83,6 @@ function weekdayFromString(date: string): string {
   return WEEKDAYS[dateObject.getDay()]
 }
 
-function timeWitoutSeconds(time: string): string {
-  const [hours, minutes] = time.split(':')
-  return `${hours}:${minutes}`
-}
-
 function dateIsValid(date: string): boolean {
   let isValid = true
   const [year, month, day] = date.split('-')
@@ -116,14 +114,10 @@ function timeIsValid(time: string): boolean {
   return isValid
 }
 
-function yogsEmoji(n: number): string {
+function yogsEmoji(users: User[]): string {
   let res = ''
 
-  for (let i = 0; i < n; i++) {
-    let index = i % YOGS.length
-
-    res += YOGS[index]
-  }
+  users.forEach(user => res += user.emoji)
 
   return res
 }
@@ -138,4 +132,83 @@ function beautyTime(time: string): string {
   const [hour, minute] = time.split(':')
 
   return `${hour}:${minute}`
+}
+
+const { oneTime, twoTimes, noLimit } = MembershipType
+
+export function updateMembership(membership: Membership, token: Token) {
+  const todayDate = new Date()
+  const tokenCreatedDate = new Date(token.created)
+  let membershipEndsDate = new Date(membership.ends)
+  let daysToAdd = 27
+  let newEnds = new Date(token.created) 
+
+  if (membershipEndsDate > todayDate) {
+    newEnds = membershipEndsDate
+    daysToAdd++
+  } else if (+token.type === MembershipType.oneTime)  {
+    daysToAdd -= tokenCreatedDate.getDay()
+  }
+
+  if (token.type === oneTime) membership.lessonsAvaliable += 4 
+  else if (token.type === twoTimes) membership.lessonsAvaliable += 8 
+  else if (token.type === noLimit) membership.lessonsAvaliable = 0
+
+  newEnds.setDate(newEnds.getDate() + daysToAdd)
+  membership.ends = convertDateIntoString(newEnds)
+  membership.starts = convertDateIntoString(tokenCreatedDate)
+  membership.type = token.type
+}
+
+export function typeIsPartOfMembTypes(type: number): boolean {
+  return type === oneTime || type === twoTimes || type === noLimit
+}
+
+export function convertDateIntoString(date: Date): string {
+  const year = date.getFullYear()
+  let month: number | string = date.getMonth() + 1
+  let day: number | string = date.getDate()
+
+  if (day < 10) day = '0' + day
+  if (month < 10) month = '0' + month
+
+  return `${year}-${month}-${day}`
+}
+
+export function generateUserCredantials (user: User): string {
+  return `\n<b>${user.name} - ${user.username}</b>`
+}
+
+export function generateKeyboard(): Markup.Markup<ReplyKeyboardMarkup> {
+  return Markup.keyboard([[Command.timetable, Command.profile, Command.contact]]).resize()
+}
+
+export function profileText(userMembership: UserMembership): string {
+  let res = `Your emoji:\n${userMembership.emoji+userMembership.emoji+userMembership.emoji}\n\nMembership ends:\n`
+
+  if (userMembership.type === null)
+    res += 'Sweetie🍪, you don\'t have one'
+  else
+    res += `<b>${userMembership.ends}</b>\n\nLessons remainings:\n <b>${userMembership.lessonsAvaliable}</b>`
+
+  return res
+}
+
+export function profileBtns() {
+  return Markup.inlineKeyboard([
+    [Markup.button.callback('Change emoji', Command.changeEmoji)],
+    [Markup.button.callback('Activate membership', Command.activateMembership)],
+  ])
+}
+
+export function isSingleEmoji(str: string) {
+  const matches = str.match(emojiRegex());
+
+  return matches && matches.length === 1;
+}
+
+export function validUUID(uuid: string): boolean {
+  const uuidRegex = /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$/;
+
+  return uuidRegex.test(uuid)
 }

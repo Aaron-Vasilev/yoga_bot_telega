@@ -2,6 +2,7 @@ export interface User {
   id: number
   name: string
   username?: string
+  emoji: string
 }
 
 export interface Lesson {
@@ -15,4 +16,21 @@ export interface Lesson {
 export interface LessonWithUsers extends Lesson{
   lessonId: number
   registered: User[]
+}
+
+export interface Membership {
+  userId: number
+  starts: string
+  ends: string
+  type: number
+  lessonsAvaliable: number
+}
+
+export type UserMembership = User & Partial<Membership> 
+
+export interface Token {
+  id: string
+  type: number
+  created: string,
+  valid: boolean
 }
