@@ -103,7 +103,7 @@ async function scenarios(bot: Telegraf, db: Client) {
       return ctx.wizard.next()
     },
     async ctx => {
-      if (ctx.message.text && isSingleEmoji(ctx.message.text)) {
+      if (ctx?.message?.text && isSingleEmoji(ctx.message.text)) {
         await db.query(`UPDATE yoga.user SET emoji=$1
                         WHERE id=$2`, [ctx.message.text, ctx.from.id])
         ctx.reply(`Your new emoji: ${ctx.message.text}`)
@@ -122,7 +122,7 @@ async function scenarios(bot: Telegraf, db: Client) {
     },
     async ctx => {
       try {
-        if (ctx.message.text === undefined) return ctx.reply(Message.passiveAggression)
+        if (!ctx?.message?.text) return ctx.reply(Message.passiveAggression)
 
         const uuid = ctx.message.text.trim()
 
