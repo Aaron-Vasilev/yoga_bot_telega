@@ -1,10 +1,9 @@
 import { Client } from 'pg'
 import { Scenes, Telegraf, session } from 'telegraf'
 import { Command, InternalCmd, Message } from '../utils/const'
-import { generateTimetable, isAdmin, generateUserCredantials, isSingleEmoji, updateMembership, validUUID } from '../utils'
+import { generateTimetable, isAdmin, userMembershipReply, isSingleEmoji, updateMembership, validUUID } from '../utils'
 import { Membership } from 'src/utils/types'
 import { connect } from '../utils/lib'
-import { scheduler } from 'timers/promises'
 
 async function scenarios(bot: Telegraf, db: Client) {
 
@@ -59,11 +58,14 @@ async function scenarios(bot: Telegraf, db: Client) {
         ctx.wizard.state.registered = rows[0].registered
         ctx.wizard.state.currIndex = 0
 
-        const userRes = await db.query(`SELECT * FROM yoga.user 
-                                        WHERE id=$1`, [rows[0].registered[0]])
+        const userWithMembershipRes = 
+          await db.query(`SELECT username, name, ends, lessons_avaliable AS "lessonsAvaliable" 
+                          FROM yoga.user LEFT JOIN yoga.membership 
+                          ON yoga.user.id = yoga.membership.user_id
+                          WHERE id=$1`, [rows[0].registered[0]])
 
         
-        ctx.replyWithHTML('Type YES or NO:' + generateUserCredantials(userRes.rows[0]))
+        ctx.replyWithHTML(userMembershipReply(userWithMembershipRes.rows[0]))
 
         return ctx.wizard.next()
       } catch (e) {
@@ -84,13 +86,18 @@ async function scenarios(bot: Telegraf, db: Client) {
 
       currIndex++
 
-      if (registered[currIndex] === undefined)
+      if (registered[currIndex] === undefined) {
+        ctx.reply('Good job!')
         return ctx.scene.leave()
+      }
 
-      const userRes = await db.query(`SELECT * FROM yoga.user 
-                                      WHERE id=$1`, [registered[currIndex]])
+      const userWithMembershipRes = 
+        await db.query(`SELECT username, name, ends, lessons_avaliable AS "lessonsAvaliable" 
+                        FROM yoga.user LEFT JOIN yoga.membership 
+                        ON yoga.user.id = yoga.membership.user_id
+                        WHERE id=$1`, [registered[currIndex]])
 
-      ctx.replyWithHTML('Type YES or NO:' + generateUserCredantials(userRes.rows[0]))
+      ctx.replyWithHTML(userMembershipReply(userWithMembershipRes.rows[0]))
       ctx.wizard.state.currIndex = currIndex
 
       return ctx.wizard.selectStep(2)

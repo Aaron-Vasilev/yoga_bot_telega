@@ -175,8 +175,12 @@ export function convertDateIntoString(date: Date): string {
   return `${year}-${month}-${day}`
 }
 
-export function generateUserCredantials (user: User): string {
-  return `\n<b>${user.name} - ${user.username}</b>`
+type UserMemb = Pick<User, 'name' | 'username'> & Pick<Membership, 'lessonsAvaliable' | 'ends'>
+
+export function userMembershipReply (userMemb: UserMemb): string {
+  return 'Type YES or NO:\n' + 
+    `<b>${userMemb.name} - ${userMemb.username}</b>\n` +
+    `Ends: <b>${userMemb.ends}</b>\nLessons <b>${userMemb.lessonsAvaliable}</b>`
 }
 
 export function generateKeyboard(): Markup.Markup<ReplyKeyboardMarkup> {

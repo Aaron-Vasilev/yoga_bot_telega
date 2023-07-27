@@ -3,7 +3,6 @@ import { Telegraf } from 'telegraf'
 import { Command, InternalCmd, Message, Sticker } from '../utils/const'
 import { convertDateIntoString, generateKeyboard, isAdmin, profileBtns, profileText, typeIsPartOfMembTypes } from '../utils'
 import { timetableCB, connect } from '../utils/lib'
-import { Token } from 'src/utils/types'
 import { randomUUID } from 'crypto'
 
 export async function hears(bot: Telegraf, db: Client) {
