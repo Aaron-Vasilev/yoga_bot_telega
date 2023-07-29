@@ -192,10 +192,14 @@ export function profileText(userMembership: UserMembership): string {
 
   if (userMembership.type === null)
     res += 'Sweetie🍪, you don\'t have one'
-  else if (userMembership.type === MembershipType.noLimit)
-    res += 'You are my favourite student🤍'
-  else
-    res += `<b>${userMembership.ends}</b>\n\nLessons remainings:\n <b>${userMembership.lessonsAvaliable}</b>`
+  else {
+    res += `<b>${userMembership.ends}</b>\n\n`
+
+    if (userMembership.type === MembershipType.noLimit)
+      res += '<b>You</b> are <b>my</b> favourite student🤍'
+    else
+      res += `Lessons remainings:\n <b>${userMembership.lessonsAvaliable}</b>`
+  }
 
   return res
 }
