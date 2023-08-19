@@ -9,7 +9,7 @@ export function connect(fn: Fn) {
     try {
       fn.call(this, bot, db)
     } catch (e) {
-      console.log(fn.name, e)
+      console.error('† Connect Error', new Date(), fn.name, '\n', e)
     }
   }
 }
