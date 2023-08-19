@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "nodemon --exec ts-node src/index.ts",
     "start": "node ./dist/yogabot.js",
-    "restart": "webpack && pm2 del yogabot && pm2 start ./dist/yogabot.js",
+    "restart": "pm2 del yogabot && pm2 start ./dist/yogabot.js",
+    "launch": "webpack && pm2 del yogabot && pm2 start ./dist/yogabot.js",
     "build": "webpack",
     "test": "jest"
   },
