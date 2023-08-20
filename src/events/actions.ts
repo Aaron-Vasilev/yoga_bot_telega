@@ -11,15 +11,17 @@ async function actions(bot: Telegraf, db: Client) {
   bot.action(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}$/, async ctx => {
     if ('data' in ctx.update.callback_query) {
       const [date, time] = ctx.update.callback_query.data.split('T')
-      const result = await db.query('SELECT yoga.get_lesson($1, $2);', [date, time])
+      const result = await db.query('SELECT * FROM yoga.get_lesson($1, $2);', [date, time])
 
-      const lessonText = generateLessonText(result.rows[0].get_lesson)
-      const button = generateLessonButton(ctx.from.id, result.rows[0].get_lesson)
+      if (result.rows[0].get_lesson.lesson !== null) {
+        const lessonText = generateLessonText(result.rows[0].get_lesson)
+        const button = generateLessonButton(ctx.from.id, result.rows[0].get_lesson)
 
-      ctx.replyWithHTML(lessonText, button)
-    } else {
-      ctx.reply(Message.error)
+        return ctx.replyWithHTML(lessonText, button)
+      } 
     }
+
+    return ctx.reply(Message.error)
   })
 
 
