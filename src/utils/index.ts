@@ -4,6 +4,8 @@ import emojiRegex from "emoji-regex"
 import { User, Lesson, LessonWithUsers, Membership, Token, UserMembership } from "./types"
 import { Command, MembershipType, REGISTER, UNREGISTER, WEEKDAYS } from "./const"
 
+const { oneTime, twoTimes, noLimit } = MembershipType
+
 export function isAdmin(userId: number): boolean {
   return process.env.ADMIN.split(',').find(id => +id === userId) ? true : false
 }
@@ -134,30 +136,45 @@ function beautyTime(time: string): string {
   return `${hour}:${minute}`
 }
 
-const { oneTime, twoTimes, noLimit } = MembershipType
+function updateMembershipLessons(mmbshp: Membership, token: Token) {
+  if (token.type === oneTime) mmbshp.lessonsAvaliable += 4 
+  else if (token.type === twoTimes) mmbshp.lessonsAvaliable += 8 
+  else if (token.type === noLimit) mmbshp.lessonsAvaliable = 0
+}
 
-export function updateMembership(membership: Membership, token: Token) {
-  const todayDate = new Date()
+function
+updateActiveMembership(mmbshp: Membership, token: Token,
+                        mmbshpEndsDate: Date)
+{
+  const membershipLasts = 28
+
+  mmbshpEndsDate.setDate(mmbshpEndsDate.getDate() + membershipLasts)
+  mmbshp.ends = convertDateIntoString(mmbshpEndsDate)
+}
+
+function
+updateExpiredMembership(mmbshp: Membership, token: Token, tokenCreatedDate: Date)
+{
+  const daysRemaining = 27
+
+  mmbshp.starts = convertDateIntoString(tokenCreatedDate)
+  tokenCreatedDate.setDate(tokenCreatedDate.getDate() + daysRemaining)
+  mmbshp.ends = convertDateIntoString(tokenCreatedDate)
+  mmbshp.lessonsAvaliable = 0
+}
+
+export function updateMembership(mmbshp: Membership, token: Token) {
   const tokenCreatedDate = new Date(token.created)
-  let membershipEndsDate = new Date(membership.ends)
-  let daysToAdd = 27
-  let newEnds = new Date(token.created) 
+  let mmbshpEndsDate = new Date(mmbshp.ends)
 
-  if (membershipEndsDate > todayDate) {
-    newEnds = membershipEndsDate
-    daysToAdd++
-  } else if (+token.type === MembershipType.oneTime)  {
-    daysToAdd -= tokenCreatedDate.getDay()
-  }
+  if (mmbshpEndsDate >= tokenCreatedDate)
+    updateActiveMembership(mmbshp, token, mmbshpEndsDate)
+  else
+    updateExpiredMembership(mmbshp, token, tokenCreatedDate)
 
-  if (token.type === oneTime) membership.lessonsAvaliable += 4 
-  else if (token.type === twoTimes) membership.lessonsAvaliable += 8 
-  else if (token.type === noLimit) membership.lessonsAvaliable = 0
+  updateMembershipLessons(mmbshp, token)
 
-  newEnds.setDate(newEnds.getDate() + daysToAdd)
-  membership.ends = convertDateIntoString(newEnds)
-  membership.starts = convertDateIntoString(tokenCreatedDate)
-  membership.type = token.type
+  mmbshp.type = token.type
 }
 
 export function typeIsPartOfMembTypes(type: number): boolean {
@@ -195,7 +212,7 @@ export function profileText(userMembership: UserMembership): string {
   else {
     res += `<b>${userMembership.ends}</b>\n\n`
 
-    if (userMembership.type === MembershipType.noLimit)
+    if (userMembership.type === noLimit)
       res += '<b>You</b> are <b>my</b> favourite student🤍'
     else
       res += `Lessons remainings:\n <b>${userMembership.lessonsAvaliable}</b>`

@@ -1,27 +1,6 @@
 import { updateMembership } from '../utils'
 import { Membership, Token } from '../utils/types'
 
-const token1: Token = {
-  id: '',
-  type: 1,
-  created: '2023-07-13',
-  valid: true
-}
-
-const tokenStart: Token = {
-  id: '',
-  type: 1,
-  created: '2023-07-02',
-  valid: true
-}
-
-const tokenEnd: Token = {
-  id: '',
-  type: 1,
-  created: '2023-07-08',
-  valid: true
-}
-
 const token2: Token = {
   id: '',
   type: 2,
@@ -29,52 +8,7 @@ const token2: Token = {
   valid: true
 }
 
-const token8: Token = {
-  id: '',
-  type: 8,
-  created: '2023-07-14',
-  valid: true
-}
-
 describe(updateMembership.name, () => {
-  test('Type 1 begin of the week', () => {
-    const membership: Membership = {
-      type: 0,
-      userId: 1,
-      starts: '2023-01-01',
-      ends: '2023-02-01',
-      lessonsAvaliable: 0
-    }
-    updateMembership(membership, tokenStart)
-
-    expect(membership).toEqual({
-      type: tokenStart.type,
-      userId: membership.userId,
-      starts: tokenStart.created,
-      ends: '2023-07-29',
-      lessonsAvaliable: 4
-    })
-  }) 
-
-  test('Type 1 end of the week', () => {
-    const membership: Membership = {
-      type: 0,
-      userId: 1,
-      starts: '2023-01-01',
-      ends: '2023-02-01',
-      lessonsAvaliable: 4
-    }
-    updateMembership(membership, tokenEnd)
-
-    expect(membership).toEqual({
-      type: tokenEnd.type,
-      userId: membership.userId,
-      starts: tokenEnd.created,
-      ends: '2023-07-29',
-      lessonsAvaliable: 8
-    })
-  }) 
-
   test('Type 1 ends expired', () => {
     const membership: Membership = {
       type: 0,
@@ -83,18 +17,26 @@ describe(updateMembership.name, () => {
       ends: '2023-02-01',
       lessonsAvaliable: 0
     }
-    updateMembership(membership, token1)
+    const token: Token = {
+      id: '',
+      type: 1,
+      created: '2023-07-13',
+      valid: true
+    }
+
+
+    updateMembership(membership, token)
 
     expect(membership).toEqual({
-      type: token1.type,
+      type: token.type,
       userId: membership.userId,
-      starts: token1.created,
-      ends: '2023-08-05',
+      starts: token.created,
+      ends: '2023-08-09',
       lessonsAvaliable: 4
     })
   }) 
 
-  test('Type 1 ends is valid', () => {
+  test('Type 1, membership is valid', () => {
     const membership: Membership = {
       type: 0,
       userId: 1,
@@ -102,14 +44,46 @@ describe(updateMembership.name, () => {
       ends: '2023-07-22',
       lessonsAvaliable: 2
     }
-    updateMembership(membership, token1)
+    const token: Token = {
+      id: '',
+      type: 1,
+      created: '2023-07-13',
+      valid: true
+    }
+
+    updateMembership(membership, token)
 
     expect(membership).toEqual({
-      type: token1.type,
+      type: token.type,
       userId: membership.userId,
-      starts: token1.created,
+      starts: membership.starts,
       ends: '2023-08-19',
       lessonsAvaliable: 6
+    })
+  }) 
+
+  test('Type 1, membership expired, some lessons remaining', () => {
+    const membership: Membership = {
+      type: 1,
+      userId: 1,
+      starts: '2023-07-00',
+      ends: '2023-07-29',
+      lessonsAvaliable: 2
+    }
+    const token: Token = {
+      id: '',
+      type: 1,
+      created: '2023-08-01',
+      valid: true
+    }
+    updateMembership(membership, token)
+
+    expect(membership).toEqual({
+      type: token.type,
+      userId: membership.userId,
+      starts: token.created,
+      ends: '2023-08-28',
+      lessonsAvaliable: 4
     })
   }) 
 
@@ -128,7 +102,7 @@ describe(updateMembership.name, () => {
       userId: membership.userId,
       starts: token2.created,
       ends: '2023-08-11',
-      lessonsAvaliable: 7
+      lessonsAvaliable: 8
     })
   })
 
@@ -159,13 +133,20 @@ describe(updateMembership.name, () => {
       ends: '2023-02-01',
       lessonsAvaliable: 0
     }
-    updateMembership(membership, token8)
+    const token: Token = {
+      id: '',
+      type: 8,
+      created: '2023-07-01',
+      valid: true
+    }
+
+    updateMembership(membership, token)
 
     expect(membership).toEqual({
-      type: token8.type,
+      type: token.type,
       userId: membership.userId,
-      starts: token8.created,
-      ends: '2023-08-10',
+      starts: token.created,
+      ends: '2023-07-28',
       lessonsAvaliable: 0
     })
   })
@@ -178,10 +159,17 @@ describe(updateMembership.name, () => {
       ends: '2023-07-16',
       lessonsAvaliable: 0
     }
-    updateMembership(membership, token8)
+    const token: Token = {
+      id: '',
+      type: 8,
+      created: '2023-07-14',
+      valid: true
+    }
+
+    updateMembership(membership, token)
 
     expect(membership).toEqual({
-      type: token8.type,
+      type: token.type,
       userId: membership.userId,
       starts: membership.starts,
       ends: '2023-08-13',
