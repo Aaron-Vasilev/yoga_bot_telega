@@ -187,7 +187,7 @@ async function scenarios(bot: Telegraf, db: Client) {
   bot.use(stage.middleware())
 
   //@ts-ignore
-  bot.hears(InternalCmd.notify, async ctx => await ctx.scene.enter(Command.notificationScenario))
+  bot.hears(InternalCmd.notify, async ctx => await ctx.scene.enter(InternalCmd.notificationScenario))
   //@ts-ignore
   bot.hears(InternalCmd.sign, async ctx => await ctx.scene.enter(InternalCmd.signStudents))
   //@ts-ignore

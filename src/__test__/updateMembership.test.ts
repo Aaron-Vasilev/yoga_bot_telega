@@ -87,6 +87,56 @@ describe(updateMembership.name, () => {
     })
   }) 
 
+  test('Type 1, membership expired, lessons are negative', () => {
+    const membership: Membership = {
+      type: 1,
+      userId: 1,
+      starts: '2023-07-00',
+      ends: '2023-07-29',
+      lessonsAvaliable: -1
+    }
+    const token: Token = {
+      id: '',
+      type: 1,
+      created: '2023-08-01',
+      valid: true
+    }
+    updateMembership(membership, token)
+
+    expect(membership).toEqual({
+      type: token.type,
+      userId: membership.userId,
+      starts: token.created,
+      ends: '2023-08-28',
+      lessonsAvaliable: 4
+    })
+  }) 
+
+  test('Type 1, membership is active, lessons are negative', () => {
+    const membership: Membership = {
+      type: 1,
+      userId: 1,
+      starts: '2023-07-00',
+      ends: '2023-09-07',
+      lessonsAvaliable: -1
+    }
+    const token: Token = {
+      id: '',
+      type: 1,
+      created: '2023-09-05',
+      valid: true
+    }
+    updateMembership(membership, token)
+
+    expect(membership).toEqual({
+      type: token.type,
+      userId: membership.userId,
+      starts: membership.starts,
+      ends: '2023-10-05',
+      lessonsAvaliable: 3
+    })
+  }) 
+
   test('Type 2 ends expired', () => {
     const membership: Membership = {
       type: 0,

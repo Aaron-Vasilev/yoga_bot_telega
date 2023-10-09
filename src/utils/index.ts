@@ -160,7 +160,6 @@ updateExpiredMembership(mmbshp: Membership, token: Token, tokenCreatedDate: Date
   mmbshp.starts = convertDateIntoString(tokenCreatedDate)
   tokenCreatedDate.setDate(tokenCreatedDate.getDate() + daysRemaining)
   mmbshp.ends = convertDateIntoString(tokenCreatedDate)
-  mmbshp.lessonsAvaliable = 0
 }
 
 export function updateMembership(mmbshp: Membership, token: Token) {
@@ -169,8 +168,10 @@ export function updateMembership(mmbshp: Membership, token: Token) {
 
   if (mmbshpEndsDate >= tokenCreatedDate)
     updateActiveMembership(mmbshp, token, mmbshpEndsDate)
-  else
+  else {
     updateExpiredMembership(mmbshp, token, tokenCreatedDate)
+    mmbshp.lessonsAvaliable = 0
+  }
 
   updateMembershipLessons(mmbshp, token)
 
