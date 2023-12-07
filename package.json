@@ -10,14 +10,20 @@
     "restart": "pm2 del yogabot && pm2 start ./dist/yogabot.js",
     "launch": "webpack && pm2 del yogabot && pm2 start ./dist/yogabot.js",
     "build": "webpack",
-    "test": "jest"
+    "test": "jest",
+    "prismagen": "pnpx prisma generate --schema=./src/prisma/schema.prisma"
   },
   "author": "",
   "license": "ISC",
+  "prisma": {
+    "schema": "./src/prisma/schema.prisma"
+  },
   "dependencies": {
+    "@prisma/client": "5.7.0",
     "dotenv": "^16.0.3",
     "emoji-regex": "^10.2.1",
     "pg": "^8.10.0",
+    "prisma": "^5.7.0",
     "telegraf": "^4.12.2"
   },
   "devDependencies": {

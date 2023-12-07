@@ -4,6 +4,7 @@ import { Command, InternalCmd, Message, Sticker } from '../utils/const'
 import { convertDateIntoString, generateKeyboard, isAdmin, profileBtns, profileText, typeIsPartOfMembTypes } from '../utils'
 import { timetableCB, connect } from '../utils/lib'
 import { randomUUID } from 'crypto'
+import { UserMembership } from '@/utils/types'
 
 export async function hears(bot: Telegraf, db: Client) {
 
@@ -76,6 +77,39 @@ export async function hears(bot: Telegraf, db: Client) {
                     VALUES ($1,$2,$3,$4)`, [uuid, type, created, true])
 
     ctx.reply(uuid)
+  })
+
+  bot.hears(/EXTEND_\d/, async ctx => {
+    if (!isAdmin(ctx.from.id)) return
+
+    const daysToExtend = Number(ctx.message.text.split('_').at(1))
+
+    const result = await db.query(`SELECT id, username, name, starts, ends,
+                        lessons_avaliable as "lessonsAvaliable",
+                        user_id as "userId", type, emoji
+                        FROM yoga.user LEFT JOIN yoga.membership
+                        ON yoga.user.id = yoga.membership.user_id
+                        WHERE ends >= now()::DATE - 1;`)
+
+    result.rows.forEach(async (m: UserMembership) => {
+      const newEnd = new Date(m.ends)
+      newEnd.setDate(newEnd.getDate() + daysToExtend)
+
+      await ctx.telegram.sendMessage(m.userId, Message.prevMembership, {
+        parse_mode: 'HTML'
+      }).catch(_e => {})
+      await ctx.telegram.sendMessage(m.userId, profileText(m), { 
+        parse_mode: 'HTML' 
+      }).catch(_e => {})
+      await ctx.telegram.sendMessage(m.userId, Message.updatedMembership).catch(_e => {})
+      m.ends = convertDateIntoString(newEnd)
+      await db.query(`UPDATE yoga.membership SET ends=$1 
+                      WHERE user_id=$2;`, [m.ends, m.userId])
+      await ctx.telegram.sendMessage(m.userId, profileText(m), { 
+        parse_mode: 'HTML' 
+      }).catch(_e => {})
+
+    })
   })
 } 
 

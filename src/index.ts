@@ -13,7 +13,7 @@ pg.types.setTypeParser(1082, (val) => val)
 
 const db = new Client({
   connectionString: process.env.DATABASE_URL,
-  ssl: process.env.NODE_ENV === 'dev' ? false : {
+  ssl: process.env.NODE_ENV === 'development' ? false : {
     rejectUnauthorized: false
   }
 })
