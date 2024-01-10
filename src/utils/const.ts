@@ -1,3 +1,7 @@
+export const AID = 362575139
+export const VID = 833382946
+export const ADMINS = [AID, VID]
+
 export enum Command {
   contact = 'Contact 💌',
   profile = 'Profile 🧘',

@@ -7,6 +7,7 @@ import connectHears from './events/hears'
 import { connectOns } from './events/ons'
 import connectScenarios from './events/scenarios'
 import { start } from './events/start'
+import { runCron } from './utils/cron'
 
 dotenv.config()
 pg.types.setTypeParser(1082, (val) => val)
@@ -29,4 +30,7 @@ connectScenarios(bot, db)
 connectOns(bot, db)
 
 bot.launch()
+
+runCron(bot, db)
 console.log('Launch!')
+

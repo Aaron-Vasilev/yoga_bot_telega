@@ -2,12 +2,12 @@ import { Markup } from "telegraf"
 import { InlineKeyboardMarkup, ReplyKeyboardMarkup } from "telegraf/typings/core/types/typegram"
 import emojiRegex from "emoji-regex"
 import { User, Lesson, LessonWithUsers, Membership, Token, UserMembership } from "./types"
-import { Command, MembershipType, REGISTER, UNREGISTER, WEEKDAYS } from "./const"
+import { ADMINS, Command, MembershipType, REGISTER, UNREGISTER, WEEKDAYS } from "./const"
 
 const { oneTime, twoTimes, noLimit } = MembershipType
 
 export function isAdmin(userId: number): boolean {
-  return process.env.ADMIN.split(',').find(id => +id === userId) ? true : false
+  return ADMINS.find(id => id === userId) ? true : false
 }
 
 export function lessonIsValid(strings: string[]): boolean {
