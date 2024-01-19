@@ -42,6 +42,7 @@ export enum InternalCmd {
 }
 
 export enum MembershipType {
+  empty = 0,
   oneTime = 1,
   twoTimes = 2,
   noLimit = 8
