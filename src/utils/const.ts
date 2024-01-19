@@ -14,7 +14,7 @@ export enum Message {
   contact = 'Address: <b>Haifa, Herzlia 16</b>\n\nTelephone: <b>0534257328</b> \n\nQuestions: @vialettochka\n\n<b>Prices:</b>\n 50₪ - first time\n 70₪ - visit without a pass\n<b>4 weeks passes:</b>\n 200₪ - 1 visit in a week\n 300₪ - 2 visits in a week\n 400₪ - unlimited visits',
   error = 'Oops, Something went wrong!',
   greeting = 'Hello to all my dear yoga students!\nI hope you are feeling healthy and happy.\nI look forward to practice together. See you on the mat🤍',
-  register = 'See you in the session✨',
+  seeyou = 'See you in the session✨',
   passiveAggression = 'You don\'t listen...🗿', 
   prevMembership = 'Hey puncake🥞, I won\'t be able to give classes for a couple of days. So, <b>I update the end</b> date of your membership🤝\nThis is your current membership:',
   updatedMembership = 'And this is the updated one. See you at the lesson, chocolate🍫',

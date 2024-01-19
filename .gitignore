@@ -2,7 +2,6 @@ node_modules
 migrations
 .env
 dist
-*.sql
 *.pem
 latest.dump
 pg_cmds

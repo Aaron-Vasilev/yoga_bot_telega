@@ -1,3 +1,5 @@
+import { MembershipType } from "./const"
+
 export interface User {
   id: number
   name: string
@@ -22,7 +24,7 @@ export interface Membership {
   userId: number
   starts: string
   ends: string
-  type: number
+  type: MembershipType
   lessonsAvaliable: number
 }
 

@@ -1,30 +1,31 @@
 import { Client } from 'pg'
 import { Telegraf } from 'telegraf'
-import { convertDateIntoString } from '.'
-import { VID } from './const'
+import { schedule } from 'node-cron'
 import { UserMembership } from './types'
+import { MembershipType, Message } from './const'
 
-const sixHours = 1000 * 60 * 60 * 6
+const studentSubscriptionEnds = (bot: Telegraf, db: Client) => 
+  schedule('0 12 * * SUN', async () => {
+    const date = new Date()
+    const users = await db.query(`SELECT id, name, username, type, ends,
+                                  lessons_avaliable as "lessonsAvaliable"
+                                  FROM yoga.user JOIN yoga.membership ON id=user_id;`)
 
-const studentSubscriptionEnds = (bot: Telegraf, db: Client) => setInterval(async () => {
-  const date = new Date()
-  const dateStr = convertDateIntoString(date)
+    users.rows.forEach((user: UserMembership) => {
+      let message = `My cherry varenichek🥟🍒\n`
 
-  const users = await db.query(`SELECT name, username,
-                                lessons_avaliable as "lessonsAvaliable"
-                                FROM yoga.user JOIN yoga.membership
-                                ON id=user_id WHERE ends=$1;`, [dateStr])
-
-  let message = `Today the membership ends:\n`
-
-  users.rows.forEach((user: UserMembership) => {
-    message += `Name: <b>${user.name}</b>
-User: <b>${user.username}</b>
-Lessons remaining: <b>${user.lessonsAvaliable}</b>\n\n`
-  })
-  bot.telegram.sendMessage(VID, message, { parse_mode: 'HTML' })
-
-}, sixHours)
+      if (user.type === MembershipType.noLimit) {
+        message += `Kindly reminder, your membership ends <b>${user.ends}</b>`
+      } else if (user.lessonsAvaliable <= 0 || new Date(user.ends) < date) {
+        message += `When you come to my lesson next time, <b>remember to renew your membership</b>😚`
+      } else {
+        message += `Your membership ends <b>${user.ends}</b> and you still have <b>${user.lessonsAvaliable}</b> lessons🥳\nDon't forget to use them all🧞‍♀️`
+      }
+      message += `\n${Message.seeyou}`
+      bot.telegram.sendMessage(user.id, message, { parse_mode: 'HTML' })
+        .catch(_e => {})
+    })
+})
 
 export async function runCron(bot: Telegraf,db: Client) {
   studentSubscriptionEnds(bot, db)

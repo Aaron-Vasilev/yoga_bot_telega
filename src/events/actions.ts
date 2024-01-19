@@ -35,7 +35,7 @@ async function actions(bot: Telegraf, db: Client) {
           await db.query(`UPDATE yoga.registered_users 
                           SET registered = array_append(registered, $1)
                           WHERE lesson_id=$2 AND NOT ($1=ANY(registered));`, [ctx.from.id, lessonId])
-          message = Message.register
+          message = Message.seeyou
           break;
 
         case UNREGISTER:
