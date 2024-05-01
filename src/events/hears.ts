@@ -110,6 +110,8 @@ export async function hears(bot: Telegraf, db: Client) {
       }).catch(_e => {})
 
     })
+
+    ctx.reply(`Subscriptins successfully updated for ${daysToExtend} days`)
   })
 } 
 
