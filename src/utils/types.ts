@@ -36,3 +36,8 @@ export interface Token {
   created: string,
   valid: boolean
 }
+
+export type UserWithCount = Pick<User, 'emoji' | 'name' | 'username'> & {
+  mycount: number
+}
+

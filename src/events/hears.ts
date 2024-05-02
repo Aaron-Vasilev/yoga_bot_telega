@@ -1,10 +1,10 @@
 import { Client } from 'pg'
 import { Telegraf } from 'telegraf'
 import { Command, InternalCmd, Message, Sticker } from '../utils/const'
-import { convertDateIntoString, generateKeyboard, isAdmin, profileBtns, profileText, typeIsPartOfMembTypes } from '../utils'
+import { convertDateIntoString, generateKeyboard, isAdmin, leaderboardText, profileBtns, profileText, typeIsPartOfMembTypes } from '../utils'
 import { timetableCB, connect } from '../utils/lib'
 import { randomUUID } from 'crypto'
-import { UserMembership } from '@/utils/types'
+import { UserMembership, UserWithCount } from '@/utils/types'
 
 export async function hears(bot: Telegraf, db: Client) {
 
@@ -64,6 +64,24 @@ export async function hears(bot: Telegraf, db: Client) {
     ctx.replyWithHTML(profileText(rows[0]), { ...profileBtns() })
   })
 
+  bot.hears(Command.leaderboard, async ctx => {
+    const date = new Date()
+    const year = date.getFullYear()
+    const month = date.getMonth()
+    const beginOfTheMonth = new Date(year, month, 1)
+    const endOfTheMonth = new Date(year, month + 1, 1)
+
+    const { rows } = await db.query<UserWithCount>(`
+      SELECT username, name, emoji, COUNT(user_id) AS mycount FROM yoga.attendance 
+      JOIN yoga.user ON yoga.user.id = user_id WHERE date>= $1 and date <= $2 
+      GROUP BY user_id, username, name, emoji ORDER BY mycount DESC;
+    `, [beginOfTheMonth, endOfTheMonth])
+
+    rows.forEach(u => u.mycount = Number(u.mycount))
+
+    ctx.replyWithHTML(leaderboardText(rows))
+  })
+
   bot.hears(/GENERATE_\d/, async ctx => {
     if (!isAdmin(ctx.from.id)) return
 
@@ -74,7 +92,7 @@ export async function hears(bot: Telegraf, db: Client) {
     if (!typeIsPartOfMembTypes(type)) return ctx.reply(Message.error)
 
     await db.query(`INSERT INTO yoga.token (id, type, created, valid)
-                    VALUES ($1,$2,$3,$4)`, [uuid, type, created, true])
+                    VALUES ($1,$2,$3,$4);`, [uuid, type, created, true])
 
     ctx.reply(uuid)
   })

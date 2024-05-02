@@ -6,6 +6,7 @@ export enum Command {
   contact = 'Contact 💌',
   profile = 'Profile 🧘',
   timetable = 'Timetable 🗓',
+  leaderboard = 'Leaderboard 🏆',
   changeEmoji = 'Change emoji',
   activateMembership = 'Activate membership',
 }

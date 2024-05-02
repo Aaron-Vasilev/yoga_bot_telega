@@ -52,11 +52,13 @@ async function scenarios(bot: Telegraf, db: Client) {
     async ctx => {
       try {
         const lessonId = parseInt(ctx.message.text)
-        const { rows } = await db.query(`SELECT registered, lesson_id as "lessonId"
-                                         FROM yoga.registered_users 
+        const { rows } = await db.query(`SELECT registered, lesson_id as "lessonId", date
+                                         FROM yoga.registered_users JOIN yoga.lesson on id=lesson_id 
                                          WHERE lesson_id=$1;`, [lessonId])
         ctx.wizard.state.registered = rows[0].registered
         ctx.wizard.state.currIndex = 0
+        ctx.wizard.state.date = rows[0].date
+        ctx.wizard.state.lessonId = lessonId
 
         const userWithMembershipRes = 
           await db.query(`SELECT username, name, ends, lessons_avaliable AS "lessonsAvaliable" 
@@ -77,16 +79,26 @@ async function scenarios(bot: Telegraf, db: Client) {
       const registered =  ctx.wizard.state.registered
       const payload = ctx.message.text
       let currIndex = ctx.wizard.state.currIndex
+      let userId = registered[currIndex]
 
       if (payload === 'YES') {
-        await db.query(`UPDATE yoga.membership 
-                        SET lessons_avaliable = lessons_avaliable - 1
-                        WHERE user_id=$1`, [registered[currIndex]])
+        const date = ctx.wizard.state.date
+        const lessonId = ctx.wizard.state.lessonId
+
+        await Promise.all([
+          db.query(`INSERT INTO yoga.attendance 
+                    (user_id, lesson_id, date) VALUES ($1, $2, $3);`, 
+                    [userId, lessonId, date]),
+          db.query(`UPDATE yoga.membership 
+                    SET lessons_avaliable = lessons_avaliable - 1
+                    WHERE user_id=$1;`, [userId])
+        ]) 
       }
 
       currIndex++
+      userId = registered[currIndex]
 
-      if (registered[currIndex] === undefined) {
+      if (userId === undefined) {
         ctx.reply('Good job!')
         return ctx.scene.leave()
       }
@@ -95,7 +107,7 @@ async function scenarios(bot: Telegraf, db: Client) {
         await db.query(`SELECT username, name, ends, lessons_avaliable AS "lessonsAvaliable" 
                         FROM yoga.user LEFT JOIN yoga.membership 
                         ON yoga.user.id = yoga.membership.user_id
-                        WHERE id=$1`, [registered[currIndex]])
+                        WHERE id=$1`, [userId])
 
       ctx.replyWithHTML(userMembershipReply(userWithMembershipRes.rows[0]))
       ctx.wizard.state.currIndex = currIndex

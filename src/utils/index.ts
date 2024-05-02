@@ -1,7 +1,7 @@
 import { Markup } from "telegraf"
 import { InlineKeyboardMarkup, ReplyKeyboardMarkup } from "telegraf/typings/core/types/typegram"
 import emojiRegex from "emoji-regex"
-import { User, Lesson, LessonWithUsers, Membership, Token, UserMembership } from "./types"
+import { User, Lesson, LessonWithUsers, Membership, Token, UserMembership, UserWithCount } from "./types"
 import { ADMINS, Command, MembershipType, REGISTER, UNREGISTER, WEEKDAYS } from "./const"
 
 const { oneTime, twoTimes, noLimit } = MembershipType
@@ -50,14 +50,7 @@ export function generateLessonText(lesson: LessonWithUsers): string {
 
   if (lesson.registered.length > 0) {
     lesson.registered.forEach((user, i) => {
-      let name = ''
-
-      if (user.username)
-        name += '@' + user.username
-      else
-        name += user.name
-
-      text += `\n${i + 1}. ${name}`
+      text += `\n${i + 1}. ${userName(user)}`
     })
   }
 
@@ -202,7 +195,10 @@ export function userMembershipReply (userMemb: UserMemb): string {
 }
 
 export function generateKeyboard(): Markup.Markup<ReplyKeyboardMarkup> {
-  return Markup.keyboard([[Command.timetable, Command.profile, Command.contact]]).resize()
+  return Markup.keyboard([
+    [Command.timetable, Command.profile],
+    [Command.leaderboard,Command.contact], 
+  ]).resize()
 }
 
 export function profileText(userMembership: UserMembership): string {
@@ -222,6 +218,25 @@ export function profileText(userMembership: UserMembership): string {
   return res
 }
 
+const medals = ['🥇','🥈','🥉']
+function medalEmoji(i: number): string {
+  if (i < medals.length) return medals[i]
+  return '🎖'
+}
+
+export function leaderboardText(users: UserWithCount[]): string {
+  let text = 'The Yoggiest Yogi of the month📅:\n\n'
+  let medalI = 0
+
+  for (let i = 0; i < users.length; i++) {
+    if (i > 0 && users[i].mycount < users[i - 1].mycount) medalI++
+
+    text += `${medalEmoji(medalI)} ${userName(users[i])} ${users[i].emoji} (${users[i].mycount} times)\n`
+  }
+
+  return text
+}
+
 export function profileBtns() {
   return Markup.inlineKeyboard([
     [Markup.button.callback('Change emoji', Command.changeEmoji)],
@@ -239,4 +254,13 @@ export function validUUID(uuid: string): boolean {
   const uuidRegex = /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$/;
 
   return uuidRegex.test(uuid)
+}
+
+export function userName(user: Pick<User, 'name' | 'username'>) {
+  let name = ''
+
+  if (user.username) name += '@' + user.username
+  else name += user.name
+
+  return name
 }
