@@ -84,7 +84,7 @@ export function dateIsValid(date: string): boolean {
 
   if (year === undefined || month === undefined || day === undefined)
     isValid = false
-  else if (year.length !== 4 || month.length !== 2 || month.length !== 2)
+  else if (year.length !== 4 || month.length !== 2 || day.length !== 2)
     isValid = false
   else if (Number.isInteger(+year)  === false ||
            Number.isInteger(+month) === false ||
