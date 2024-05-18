@@ -78,7 +78,7 @@ function weekdayFromString(date: string): string {
   return WEEKDAYS[dateObject.getDay()]
 }
 
-function dateIsValid(date: string): boolean {
+export function dateIsValid(date: string): boolean {
   let isValid = true
   const [year, month, day] = date.split('-')
 
@@ -94,7 +94,7 @@ function dateIsValid(date: string): boolean {
   return isValid
 }
 
-function timeIsValid(time: string): boolean {
+export function timeIsValid(time: string): boolean {
   let isValid = true
   const [hour, minute] = time.split(':')
 
@@ -123,7 +123,7 @@ function beautyDate(date: string): string {
   return `${day}/${month}`
 }
 
-function beautyTime(time: string): string {
+export function beautyTime(time: string): string {
   const [hour, minute] = time.split(':')
 
   return `${hour}:${minute}`
@@ -135,10 +135,10 @@ function updateMembershipLessons(mmbshp: Membership, token: Token) {
   else if (token.type === noLimit) mmbshp.lessonsAvaliable = 0
 }
 
-function
-updateActiveMembership(mmbshp: Membership, token: Token,
-                        mmbshpEndsDate: Date)
-{
+function updateActiveMembership(
+  mmbshp: Membership,
+  mmbshpEndsDate: Date
+) {
   const membershipLasts = 28
 
   mmbshpEndsDate.setDate(mmbshpEndsDate.getDate() + membershipLasts)
@@ -146,7 +146,7 @@ updateActiveMembership(mmbshp: Membership, token: Token,
 }
 
 function
-updateExpiredMembership(mmbshp: Membership, token: Token, tokenCreatedDate: Date)
+updateExpiredMembership(mmbshp: Membership, tokenCreatedDate: Date)
 {
   const daysRemaining = 27
 
@@ -160,9 +160,9 @@ export function updateMembership(mmbshp: Membership, token: Token) {
   let mmbshpEndsDate = new Date(mmbshp.ends)
 
   if (mmbshpEndsDate >= tokenCreatedDate)
-    updateActiveMembership(mmbshp, token, mmbshpEndsDate)
+    updateActiveMembership(mmbshp, mmbshpEndsDate)
   else {
-    updateExpiredMembership(mmbshp, token, tokenCreatedDate)
+    updateExpiredMembership(mmbshp, tokenCreatedDate)
     mmbshp.lessonsAvaliable = 0
   }
 

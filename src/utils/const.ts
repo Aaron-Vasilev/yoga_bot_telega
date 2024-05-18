@@ -11,7 +11,7 @@ export enum Command {
   activateMembership = 'Activate membership',
 }
 export enum Message {
-  botUpdated = 'Hey cookie🍪, the bot was updated, check it out!\n\n\nAuthor: @genii_v',
+  botUpdated = 'Hey cookie🍪, the bot was updated, check it out!\n\n\nAuthor: @aaronvas',
   contact = 'Address: <b>Haifa, Herzlia 16</b>\n\nTelephone: <b>0534257328</b> \n\nQuestions: @vialettochka\n\n<b>Prices:</b>\n 50₪ - first time\n 70₪ - visit without a pass\n<b>4 weeks passes:</b>\n 200₪ - 1 visit in a week\n 300₪ - 2 visits in a week\n 400₪ - unlimited visits',
   error = 'Oops, Something went wrong!',
   greeting = 'Hello to all my dear yoga students!\nI hope you are feeling healthy and happy.\nI look forward to practice together. See you on the mat🤍',
@@ -30,6 +30,8 @@ export enum Sticker {
 export const WEEKDAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', '  Fri', 'Sat']
 export const REGISTER = 'R'
 export const UNREGISTER = 'U'
+export const DATE = 'DATE'
+export const TIME = 'TIME'
 
 export enum InternalCmd {
   activateMembership = 'ACTIVATE_MEMBERSHIP',
@@ -37,8 +39,8 @@ export enum InternalCmd {
   newTimetable = 'NEW_TIMETABLE',
   notify = 'NOTIFY',
   notificationScenario = 'NOTIFICATION_SCENARIO',
+  updateLesson = 'UPDATE_LESSON',
   sendToAll = 'SEND_TO_ALL',
-  signStudents = 'SIGN_STUDENTS',
   sign = 'SIGN',
 }
 

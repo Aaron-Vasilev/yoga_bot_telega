@@ -1,7 +1,7 @@
 import { Client } from 'pg'
 import { Scenes, Telegraf, session } from 'telegraf'
-import { Command, InternalCmd, Message } from '../utils/const'
-import { generateTimetable, isAdmin, userMembershipReply, isSingleEmoji, updateMembership, validUUID } from '../utils'
+import { Command, DATE, InternalCmd, Message, TIME } from '../utils/const'
+import { generateTimetable, isAdmin, userMembershipReply, isSingleEmoji, updateMembership, validUUID, dateIsValid, beautyTime, timeIsValid } from '../utils'
 import { Membership } from 'src/utils/types'
 import { connect } from '../utils/lib'
 
@@ -38,7 +38,7 @@ async function scenarios(bot: Telegraf, db: Client) {
     }
   )
 
-  const studentsPresentScence = new Scenes.WizardScene<any>(InternalCmd.signStudents,
+  const studentsPresentScence = new Scenes.WizardScene<any>(InternalCmd.sign,
     async ctx => {
       if (!isAdmin(ctx.from.id)) return ctx.scene.leave()
       const { rows } = await db.query('SELECT * FROM yoga.available_lessons ORDER BY date ASC;')
@@ -51,7 +51,7 @@ async function scenarios(bot: Telegraf, db: Client) {
     },
     async ctx => {
       try {
-        const lessonId = parseInt(ctx.message.text)
+        const lessonId = ctx.message.text
         const { rows } = await db.query(`SELECT registered, lesson_id as "lessonId", date
                                          FROM yoga.registered_users JOIN yoga.lesson on id=lesson_id 
                                          WHERE lesson_id=$1;`, [lessonId])
@@ -71,7 +71,7 @@ async function scenarios(bot: Telegraf, db: Client) {
 
         return ctx.wizard.next()
       } catch (e) {
-        console.log(e)
+        console.error('✡️  line 73 e', e)
         return ctx.scene.leave()
       }
     },
@@ -114,6 +114,83 @@ async function scenarios(bot: Telegraf, db: Client) {
 
       return ctx.wizard.selectStep(2)
     }
+  )
+
+  const updateLesson = new Scenes.WizardScene<any>(InternalCmd.updateLesson,
+    async ctx => {
+      if (!isAdmin(ctx.from.id)) return ctx.scene.leave()
+      const { rows } = await db.query('SELECT * FROM yoga.available_lessons ORDER BY date ASC;')
+      const timetable = generateTimetable(rows, true)
+      
+      ctx.reply('Type ID', {
+        ...timetable
+      })
+      return ctx.wizard.next()
+    },
+    async ctx => {
+      const lessonId = ctx.message.text
+      const { rows } = await db.query(`SELECT * FROM yoga.lesson WHERE id=$1;`, [lessonId])
+
+      ctx.wizard.state.lesson = rows[0]
+
+      ctx.reply('What do you want to change?', {
+        reply_markup: {
+          inline_keyboard: [
+            [{ text: DATE, callback_data: DATE }],
+            [{ text: TIME, callback_data: TIME }],
+          ]
+        }
+      })
+
+      return ctx.wizard.next()
+    },
+    async ctx => {
+      const response = ctx?.update?.callback_query.data
+      if (!response) return ctx.scene.leave()
+
+      switch (response) {
+        case DATE: {
+          const message = `Type a date with a format <b>YYYY-MM-DD</b>\nCurrent: <b>${ctx.wizard.state.lesson.date}</b>`
+          ctx.replyWithHTML(message)
+
+          return ctx.wizard.selectStep(3)
+        }
+        case TIME: {
+          const message = `Type a time in a 24 hours format <b>HH:MM</b>\nCurrent: <b>${beautyTime(ctx.wizard.state.lesson.time)}</b>`
+          ctx.replyWithHTML(message)
+
+          return ctx.wizard.selectStep(4)
+        }
+        default:
+          return ctx.scene.leave()
+      }
+    },
+    // 3 step update DATE
+    async ctx => {
+      const date =  ctx.message.text
+
+      if (dateIsValid(date)) {
+        await db.query('UPDATE yoga.lesson SET date=$1 WHERE id=$2', [date, ctx.wizard.state.lesson.id])
+        ctx.reply('Date has been updated')
+      } else {
+        ctx.reply('Input date is not valid')
+      }
+
+      return ctx.scene.leave()
+    },
+    // 4 step update TIME
+    async ctx => {
+      const time = ctx.message.text
+
+      if (timeIsValid(time)) {
+        await db.query('UPDATE yoga.lesson SET time=$1 WHERE id=$2', [time, ctx.wizard.state.lesson.id])
+        ctx.reply('Time has been updated')
+      } else {
+        ctx.reply('Input time is not valid')
+      }
+
+      return ctx.scene.leave()
+    },
   )
 
   const changeEmojiScence = new Scenes.WizardScene<any>(InternalCmd.changeEmoji,
@@ -192,7 +269,8 @@ async function scenarios(bot: Telegraf, db: Client) {
     nofityScene, 
     studentsPresentScence, 
     changeEmojiScence,
-    activateMembershipScence
+    activateMembershipScence,
+    updateLesson,
   ])
 
   bot.use(session())
@@ -201,11 +279,13 @@ async function scenarios(bot: Telegraf, db: Client) {
   //@ts-ignore
   bot.hears(InternalCmd.notify, async ctx => await ctx.scene.enter(InternalCmd.notificationScenario))
   //@ts-ignore
-  bot.hears(InternalCmd.sign, async ctx => await ctx.scene.enter(InternalCmd.signStudents))
+  bot.hears(InternalCmd.sign, async ctx => await ctx.scene.enter(InternalCmd.sign))
   //@ts-ignore
   bot.action(Command.changeEmoji, async ctx => await ctx.scene.enter(InternalCmd.changeEmoji))
   //@ts-ignore
   bot.action(Command.activateMembership, async ctx => await ctx.scene.enter(InternalCmd.activateMembership))
+  //@ts-ignore
+  bot.hears(InternalCmd.updateLesson, async ctx => await ctx.scene.enter(InternalCmd.updateLesson))
 } 
 
 export default connect(scenarios)

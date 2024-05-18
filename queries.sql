@@ -14,6 +14,8 @@ where time between '10:00' and '20:00' and date='2024-01-10';
 
 select * from yoga.registered_users;
 
+select * from yoga.attendance;
+
 select * from yoga.get_lesson('2023-05-16','07:00');
 
 select name, username, lessons_avaliable from yoga.user
