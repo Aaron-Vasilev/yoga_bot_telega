@@ -12,7 +12,7 @@ export enum Command {
 }
 export enum Message {
   botUpdated = 'Hey cookie🍪, the bot was updated, check it out!\n\n\nAuthor: @aaronvas',
-  contact = 'Address: <b>Haifa, Herzlia 16</b>\n\nTelephone: <b>0534257328</b> \n\nQuestions: @vialettochka\n\n<b>Prices:</b>\n 50₪ - first time\n 70₪ - visit without a pass\n<b>4 weeks passes:</b>\n 200₪ - 1 visit in a week\n 300₪ - 2 visits in a week\n 400₪ - unlimited visits',
+  contact = 'Address: <b>Tel-Aviv Jaffa, Yefet Street 22</b>\n\nTelephone: <b>0534257328</b> \n\nQuestions: @vialettochka\n\n<b>Prices:</b>\n 70₪ - first time\n 90₪ - visit without a pass\n<b>4 weeks membership:</b>\n 280₪ - 1 lesson in a week\n 400₪ - 2 lessons in a week',
   error = 'Oops, Something went wrong!',
   greeting = 'Hello to all my dear yoga students!\nI hope you are feeling healthy and happy.\nI look forward to practice together. See you on the mat🤍',
   seeyou = 'See you in the session✨',
